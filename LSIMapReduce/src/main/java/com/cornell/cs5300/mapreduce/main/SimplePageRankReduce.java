@@ -63,9 +63,7 @@ public class SimplePageRankReduce extends Reducer<Text, Text, Text, Text> {
 		
 		
 		context.write(reducerKey, reducerOutTxt);
-		Text keytmp = new Text("");
-
-		context.write(keytmp, reducerOutTxt);
+		
 		
 		//System.out.println("oldpage rank is " + oldPagerank + " new page ranks is " + newPagerank);
 		
@@ -82,7 +80,7 @@ public class SimplePageRankReduce extends Reducer<Text, Text, Text, Text> {
 		
 		//System.out.println(" Counter value after incremeniting is " +  context.getCounter(Counter.COUNTER) );
 		
-		context.getCounter(Counter.COUNTER).increment(residualLong);
+	
 
 	
 	}
