@@ -2,7 +2,6 @@ package com.cornell.cs5300.mapreduce.main;
 
 import java.io.IOException;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -12,12 +11,18 @@ public class SimplePageRankMap extends Mapper<LongWritable, Text, Text, Text> {
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 		String line = value.toString();
 		
+		System.out.println("-------input to mapper------");
+		System.out.println(line);
 		Text str = new Text();
 		str.set(Constants.GRAPH_IDENTIFIER+line);
 		String out[] = line.split(" ");
 		Text keyNode = new Text();
 		keyNode.set(out[0]);
 		context.write(keyNode, str);
+		
+		System.out.println("------------ graph value written by map is -------");
+		System.out.println("key = " + keyNode + "  Value=" + str);
+		
 		Double pagerankVal = Double.parseDouble((out[2]));
 
 		int outDegree = Integer.parseInt(out[1]);
@@ -28,6 +33,10 @@ public class SimplePageRankMap extends Mapper<LongWritable, Text, Text, Text> {
 				pgrank.set(String.valueOf(pgrval));
 				Text reducesKey = new Text();
 				reducesKey.set(out[0]);
+				
+				System.out.println("------------ Pagerank value written by map is -------");
+				System.out.println("key = " + reducesKey + "  Value = " + pgrank);
+				
 				context.write(reducesKey, pgrank);
 
 			}

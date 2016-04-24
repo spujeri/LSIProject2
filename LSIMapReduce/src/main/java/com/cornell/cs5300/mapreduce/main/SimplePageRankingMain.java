@@ -5,14 +5,11 @@ package com.cornell.cs5300.mapreduce.main;
  *
  */
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.StringTokenizer;
+
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
+
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapOutputCollector.Context;
 import org.apache.hadoop.mapreduce.Job;
@@ -60,7 +57,6 @@ public class SimplePageRankingMain {
 
 	public static void main(String[] args) throws Exception {
 
-		Job conf = Job.getInstance(new Configuration(), "PageRank");
 
 		System.out.println("ARG0 " + args[0]);
 		System.out.println("ARG1 " + args[1]);
@@ -72,7 +68,8 @@ public class SimplePageRankingMain {
 		StringBuilder outStr = new StringBuilder();
 		while (iteration <= 2) {
 			
-			
+			Job conf = Job.getInstance(new Configuration(), "PageRank");
+
 			if (iteration == 1) {
 				input = inputInitial;
 
@@ -80,11 +77,8 @@ public class SimplePageRankingMain {
 				input = output + (iteration - 1);
 			}
 			output = output + iteration;
-			conf.setOutputKeyClass(Text.class);
-			conf.setOutputValueClass(Text.class);
-
-			conf.setMapperClass(SimplePageRankMap.class);
-			conf.setCombinerClass(SimplePageRankReduce.class);
+	
+			//conf.setCombinerClass(SimplePageRankReduce.class);
 			conf.setReducerClass(SimplePageRankReduce.class);
 
 			conf.setJarByClass(SimplePageRankingMain.class);
@@ -100,7 +94,7 @@ public class SimplePageRankingMain {
 
 			conf.waitForCompletion(true);
 
-			long longResidue = conf.getCounters().findCounter(Constants.Counter.COUNTER).getValue();
+			long longResidue = conf.getCounters().findCounter(Counter.COUNTER).getValue();
 			double residual = longResidue / 1000000;
 			residual /= Constants.N;
 
@@ -111,7 +105,7 @@ public class SimplePageRankingMain {
 				break;
 
 			// reset residual counter after each iteration
-			conf.getCounters().findCounter(Constants.Counter.COUNTER).setValue(0);
+			conf.getCounters().findCounter(Counter.COUNTER).setValue(0);
 			iteration++;
 		}
 

@@ -1,32 +1,34 @@
 package com.cornell.cs5300.mapreduce.main;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
-
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapOutputCollector.Context;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.OutputCollector;
+
 
 import org.apache.hadoop.mapreduce.Reducer;
 
-import com.sun.tools.javac.code.Attribute.Array;
+
 
 public class SimplePageRankReduce extends Reducer<Text, Text, Text, Text> {
 	
 
-	public void reduce(Text key, Iterator<Text> values, Context context) throws IOException, InterruptedException {
+	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
-		StringBuilder reducerOutput = new StringBuilder();
+		StringBuilder reducerOutput = new StringBuilder(key.toString());
 		StringBuilder adjList = new StringBuilder();
 		String outDegree = null;
 		Double newPagerank = 0.0;
 		Double oldPagerank = 0.0;
-		while (values.hasNext()) {
+		
+		System.out.println("----------key from map is -------");
+		System.out.println(key);
+		
+		for(Text val:values) {
 
-			String value = values.next().toString();
+			String value = val.toString();
 
+			System.out.println(" Value got from map is " + value);
+			
 			if (value.contains(Constants.GRAPH_IDENTIFIER)) {
 				String vals[] = value.split(" ");
 
@@ -46,11 +48,29 @@ public class SimplePageRankReduce extends Reducer<Text, Text, Text, Text> {
 				.append(adjList.toString().trim());
 		Text reducerOutTxt = new Text();
 		reducerOutTxt.set(reducerOutput.toString());
-		context.write(key, reducerOutTxt);
+		
+		Text reducerKey = new Text();
+		reducerKey.set("");
+
+		System.out.println("---------value written by reducer is -------------");
+		System.out.println("key = " + reducerKey + "   value = " + reducerOutTxt);
+		
+		
+		context.write(reducerKey, reducerOutTxt);
 
 		double residual = Math.abs(oldPagerank - newPagerank) / newPagerank;
+		
+		System.out.println("Double residual value is " + residual);
+		
 		long residualLong = (long) residual * 1000000;
-		context.getCounter(Constants.Counter.COUNTER).increment(residualLong);
+		
+		System.out.println("residual value is " + residualLong);
+		System.out.println("Initial counter value is " + context.getCounter(Counter.COUNTER));
+		
+		context.getCounter(Counter.COUNTER).increment(residualLong);
+		
+		System.out.println(" Counter value after incremeniting is " +  context.getCounter(Counter.COUNTER) );
+		
 
 	}
 }
