@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.util.*;
 
 public class ParseGraph {
-	double fromNetID = 0.93; // 82 is 28 reversed
+	double fromNetID = 0.9332; // 82 is 28 reversed
 	double rejectMin = 0.9 * fromNetID;
 	double rejectLimit = rejectMin + 0.01;
 	Map<String, Node> nodeMap = new HashMap<String, Node>();
@@ -129,8 +129,9 @@ public class ParseGraph {
 		Map<String, Integer> degreeMap = new HashMap<String, Integer>();
 		try {
 
-			BufferedWriter bwr = new BufferedWriter(new FileWriter(Constants.FILTERED_EDGES_DEGREE));
 			BufferedReader brEdges = new BufferedReader(new FileReader(Constants.FILTERED_EDGES));
+			BufferedWriter bwr = new BufferedWriter(new FileWriter(Constants.FILTERED_EDGES_DEGREE));
+			
 			String line = null;
 			while ((line = brEdges.readLine()) != null) {
 				// System.out.println(line);
@@ -191,8 +192,6 @@ public class ParseGraph {
 				}
 
 			}
-//			brEdges.close();
-//			brEdges = new BufferedReader(new FileReader(Constants.FILTERED_EDGES));
 
 			
 			Iterator< Integer> keysit = degreeMap.keySet().iterator(); 
@@ -200,9 +199,16 @@ public class ParseGraph {
 				// System.out.println(line);
 
 				String val = degreeMap.get(keysit.next());
-				String vale= val+ String.valueOf(Constants.initilaPR);
-				System.out.println(vale);
-				bwr.write(vale);
+				String split[] = val.split(" ");
+			
+				int outDegree = split.length - 1 ;
+				StringBuilder newVal = new StringBuilder(split[0]).append(" ").append(String.valueOf(outDegree)).append(" ").append(String.valueOf(Constants.initilaPR));
+				for(int i = 1; i<split.length; i++)
+					newVal.append(" ").append(split[i]);
+				
+			//	String vale= val+ String.valueOf(Constants.initilaPR);
+				System.out.println(newVal);
+				bwr.write(newVal.toString());
 				bwr.write("\n");
 
 			}
@@ -219,7 +225,7 @@ public class ParseGraph {
 
 		ParseGraph pgraph = new ParseGraph();
 		System.out.println(pgraph.listBlock);
-		// pgraph.praseEdges();
+	//	 pgraph.praseEdges();
 		// pgraph.dispNodes();
 		pgraph.computeAdjList();
 	}
