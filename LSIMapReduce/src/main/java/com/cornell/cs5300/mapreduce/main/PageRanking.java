@@ -44,9 +44,9 @@ public class PageRanking {
 			int outDegree = out.length - 2;
 			double pgrval = Double.parseDouble((out[out.length - 1])) / outDegree;
 			for (int i = 1; i < out.length - 1; i++) {
-
+				System.out.println("inside for loop with out length = " + out.length);
 				Text pgrank = new Text();
-				pgrank.set(String.valueOf(pgrank));
+				pgrank.set(String.valueOf(pgrval));
 				Text reducesKey = new Text();
 				reducesKey.set(out[0]);
 				output.collect(reducesKey, pgrank);
