@@ -1,4 +1,4 @@
-package com.cornell.cs5300.mapreduce.main;
+package com.cornell.cs5300.mapreduce.Util;
 
 import java.util.HashSet;
 import java.util.LinkedList;

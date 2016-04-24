@@ -1,4 +1,4 @@
-package com.cornell.cs5300.mapreduce.main;
+package com.cornell.cs5300.mapreduce.simplepr;
 
 /**
  * Hello world!
@@ -9,12 +9,13 @@ package com.cornell.cs5300.mapreduce.main;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.MapOutputCollector.Context;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+import com.cornell.cs5300.mapreduce.Util.Constants;
+import com.cornell.cs5300.mapreduce.Util.Counter;
 
 public class SimplePageRankingMain {
 
@@ -60,9 +61,8 @@ public class SimplePageRankingMain {
 
 			conf.waitForCompletion(true);
 
-			long longResidue = conf.getCounters().findCounter(Counter.COUNTER).getValue();
-			double residual = longResidue / 1000000;
-			residual /= Constants.N;
+			long longResidual = conf.getCounters().findCounter(Counter.COUNTER).getValue();
+			double residual = longResidual / (1000000*Constants.N);
 
 			System.out.println("--------------------Inside Iteration----------------");
 			System.out.println("Iternation number " + iteration + " residual " + residual);

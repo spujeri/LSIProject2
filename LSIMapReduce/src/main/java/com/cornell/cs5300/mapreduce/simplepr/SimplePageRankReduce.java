@@ -1,10 +1,13 @@
-package com.cornell.cs5300.mapreduce.main;
+package com.cornell.cs5300.mapreduce.simplepr;
 
 import java.io.IOException;
 import java.util.Iterator;
 import org.apache.hadoop.io.Text;
 
 import org.apache.hadoop.mapreduce.Reducer;
+
+import com.cornell.cs5300.mapreduce.Util.Constants;
+import com.cornell.cs5300.mapreduce.Util.Counter;
 
 
 public class SimplePageRankReduce extends Reducer<Text, Text, Text, Text> {

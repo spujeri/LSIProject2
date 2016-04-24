@@ -1,4 +1,4 @@
-package com.cornell.cs5300.mapreduce.main;
+package com.cornell.cs5300.mapreduce.Util;
 
 public abstract class Constants {
 
@@ -40,6 +40,6 @@ public abstract class Constants {
 	
 	public static final double ERROR_THRESHHOLD = 0.001;
 	
-	static int numberOfIterations = 8;
+	public static final int numberOfIterations = 8;
 	
 }

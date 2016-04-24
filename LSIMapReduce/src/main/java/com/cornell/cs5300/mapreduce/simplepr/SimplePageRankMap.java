@@ -1,10 +1,12 @@
-package com.cornell.cs5300.mapreduce.main;
+package com.cornell.cs5300.mapreduce.simplepr;
 
 import java.io.IOException;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+
+import com.cornell.cs5300.mapreduce.Util.Constants;
 
 public class SimplePageRankMap extends Mapper<LongWritable, Text, Text, Text> {
 
