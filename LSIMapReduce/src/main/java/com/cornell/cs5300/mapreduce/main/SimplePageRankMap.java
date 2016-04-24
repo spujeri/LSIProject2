@@ -11,9 +11,9 @@ public class SimplePageRankMap extends Mapper<LongWritable, Text, Text, Text> {
 
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 		String line = value.toString();
-		line = "grap_" + line;
+		
 		Text str = new Text();
-		str.set(line);
+		str.set(Constants.GRAPH_IDENTIFIER+line);
 		String out[] = line.split(" ");
 		Text keyNode = new Text();
 		keyNode.set(out[0]);

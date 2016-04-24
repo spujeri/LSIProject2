@@ -21,6 +21,7 @@ public abstract class Constants {
 		COUNTER
 	}
 
+	public static final String GRAPH_IDENTIFIER = "graph";
 	
 	public static final double ERROR_THRESHHOLD = 0.001;
 }
