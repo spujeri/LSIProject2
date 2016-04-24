@@ -62,7 +62,8 @@ public class SimplePageRankingMain {
 			conf.waitForCompletion(true);
 
 			long longResidual = conf.getCounters().findCounter(Counter.COUNTER).getValue();
-			double residual = longResidual / (1000000*Constants.N);
+			double residual = longResidual / (1000000);
+			residual /=Constants.N;
 
 			System.out.println("--------------------Inside Iteration----------------");
 			System.out.println("Iternation number " + iteration + " residual " + residual);
