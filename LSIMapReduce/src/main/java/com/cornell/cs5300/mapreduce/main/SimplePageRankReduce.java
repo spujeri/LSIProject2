@@ -11,7 +11,7 @@ public class SimplePageRankReduce extends Reducer<Text, Text, Text, Text> {
 
 	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
-		StringBuilder reducerOutput = new StringBuilder(key.toString());
+		StringBuilder reducerOutput = new StringBuilder(key.toString().trim());
 		StringBuilder adjList = new StringBuilder("");
 		String outDegree = "0";
 		Double newPagerank = 0.0;
@@ -53,10 +53,11 @@ public class SimplePageRankReduce extends Reducer<Text, Text, Text, Text> {
 		reducerOutput.append(" ").append(outDegree.trim()).append(" ").append(newPagerank).append(" ")
 				.append(adjList.toString().trim());
 		Text reducerOutTxt = new Text();
-		reducerOutTxt.set(reducerOutput.toString());
+		reducerOutTxt.set(reducerOutput.toString().trim());
 		
 		Text reducerKey = new Text();
-		reducerKey.set("");
+		String keyred="";
+		reducerKey.set(keyred.trim());
 
 		//System.out.println("---------value written by reducer is -------------");
 		////System.out.println("key = " + reducerKey + "   value = " + reducerOutTxt);

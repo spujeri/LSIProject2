@@ -40,6 +40,6 @@ public abstract class Constants {
 	
 	public static final double ERROR_THRESHHOLD = 0.001;
 	
-	static int numberOfIterations = 5;
+	static int numberOfIterations = 8;
 	
 }
