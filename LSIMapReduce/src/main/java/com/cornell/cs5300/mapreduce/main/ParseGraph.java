@@ -202,6 +202,10 @@ public class ParseGraph {
 				String split[] = val.split(" ");
 			
 				int outDegree = split.length - 1 ;
+				
+				if(outDegree == 0)
+					System.out.println(split[0]);
+				
 				StringBuilder newVal = new StringBuilder(split[0]).append(" ").append(String.valueOf(outDegree)).append(" ").append(String.valueOf(Constants.initilaPR));
 				for(int i = 1; i<split.length; i++)
 					newVal.append(" ").append(split[i]);
