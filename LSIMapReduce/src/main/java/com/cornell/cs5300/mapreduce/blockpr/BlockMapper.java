@@ -22,9 +22,6 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 		
 		double outdegree = Double.parseDouble(split[1]);
 		
-		
-	
-		
 		Text mapperKey = new Text();
 		mapperKey.set(blockid.trim());
 		
@@ -47,7 +44,7 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 			{
 				
 			same_block.clear();
-			same_block.set(Constants.SAME_BLOCK_IDENTIFIER +  nodeid + Constants.DELIMITER + adjnodeid);
+			same_block.set(Constants.SAME_BLOCK_IDENTIFIER + Constants.DELIMITER + nodeid + Constants.DELIMITER + adjnodeid);
 			context.write(mapperKey, same_block );
 				
 			}
@@ -58,24 +55,13 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 				Text adjblockkey = new Text();
 				adjblockkey.set(adjblockid.trim());
 				different_block.clear();
-				different_block.set(Constants.DIIFERENT_BLOCK_IDENTIFIER + nodeid + Constants.DELIMITER + adjnodeid + Constants.DELIMITER + pagerankTopass	 );
+				different_block.set(Constants.DIIFERENT_BLOCK_IDENTIFIER + Constants.DELIMITER +  nodeid + Constants.DELIMITER + adjnodeid + Constants.DELIMITER + pagerankTopass	 );
 				context.write(adjblockkey, different_block);
 				
 				
 			}
 			
-			
-			
-			
-			
 		}
-		
-		
-		
-		
-		
-		
-		
 		
 	}
 	
