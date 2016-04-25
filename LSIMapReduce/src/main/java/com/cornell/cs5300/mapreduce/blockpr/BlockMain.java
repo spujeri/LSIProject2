@@ -81,11 +81,11 @@ public class BlockMain {
 		conf = Job.getInstance(new Configuration(), "BlockPageRank");
 		conf.setReducerClass(SimplePageRankReduce.class);
 
-		conf.setJarByClass(SimplePageRankingMain.class);
-		conf.setMapperClass(SimplePageRankMap.class);
+		conf.setJarByClass(BlockMain.class);
+		conf.setMapperClass(BlockMapper.class);
 		conf.setMapOutputKeyClass(Text.class);
 		conf.setMapOutputValueClass(Text.class);
-		conf.setReducerClass(SimplePageRankReduce.class);
+		conf.setReducerClass(BlockReducer.class);
 		conf.setOutputKeyClass(Text.class);
 		conf.setOutputValueClass(Text.class);
 
