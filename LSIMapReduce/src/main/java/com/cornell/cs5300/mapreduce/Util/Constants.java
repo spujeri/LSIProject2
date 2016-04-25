@@ -36,10 +36,22 @@ public abstract class Constants {
 		COUNTER
 	}
 
+	
+	public static String DELIMITER = " ";
+	public static String IDSEPARATOR = ",";
+	
+	
 	public static final String GRAPH_IDENTIFIER = "graph";
+	public static final String SAME_BLOCK_IDENTIFIER = "BE";
+	public static final String DIIFERENT_BLOCK_IDENTIFIER = "BC";
+	
 	
 	public static final double ERROR_THRESHHOLD = 0.001;
 	
 	public static final int numberOfIterations = 8;
+	
+	
+	
+	
 	
 }
