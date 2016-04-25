@@ -1,5 +1,90 @@
 package com.cornell.cs5300.mapreduce.blockpr;
 
-public class BlockReducer {
+import java.io.IOException;
 
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+
+import com.cornell.cs5300.mapreduce.Util.Constants;
+import com.cornell.cs5300.mapreduce.Util.Counter;
+import com.cornell.cs5300.mapreduce.Util.Node;
+
+public class BlockReducer extends Reducer<Text, Text, Text, Text> {
+
+	Node createGetNode(String line) {
+
+		Node node = new Node();
+		String values[] = line.split(" ");
+
+		
+
+		return node;
+
+	}
+
+	public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+
+		StringBuilder reducerOutput = new StringBuilder(key.toString().trim());
+		StringBuilder adjList = new StringBuilder("");
+		String outDegree = "0";
+		Double newPagerank = 0.0;
+
+		Double oldPagerank = 0.0;
+
+		// //System.out.println("----------key from map is -------");
+		//// System.out.println(key);
+
+		// System.out.println("ITERATOR INSIDE REDUCER" + values);
+
+		for (Text valueTxt : values) {
+
+			String value = valueTxt.toString().trim();
+
+			// System.out.println(" Value got from map is " + value);
+
+			if (value.contains(Constants.GRAPH_IDENTIFIER)) {
+				
+				createGetNode(value);
+
+			} else {
+				newPagerank += Double.parseDouble(value);
+			}
+
+		}
+		newPagerank = newPagerank * Constants.D_PR + (1 - Constants.D_PR) / Constants.N;
+		reducerOutput.append(" ").append(outDegree.trim()).append(" ").append(newPagerank).append(" ")
+				.append(adjList.toString().trim());
+		Text reducerOutTxt = new Text();
+		reducerOutTxt.set(reducerOutput.toString().trim());
+
+		Text reducerKey = new Text();
+		String keyred = "";
+		reducerKey.set(keyred.trim());
+
+		// System.out.println("---------value written by reducer is
+		// -------------");
+		//// System.out.println("key = " + reducerKey + " value = " +
+		// reducerOutTxt);
+
+		context.write(reducerKey, reducerOutTxt);
+
+		// System.out.println("oldpage rank is " + oldPagerank + " new page
+		// ranks is " + newPagerank);
+
+		double residual = Math.abs(oldPagerank - newPagerank) / newPagerank;
+
+		// System.out.println("Double residual value is " + residual);
+
+		long residualLong = (long) residual * 1000000;
+
+		// System.out.println("residual value is " + residualLong);
+		// System.out.println("Initial counter value is " +
+		// context.getCounter(Counter.COUNTER));
+
+		context.getCounter(Counter.COUNTER).increment(residualLong);
+
+		// System.out.println(" Counter value after incremeniting is " +
+		// context.getCounter(Counter.COUNTER) );
+
+	}
 }

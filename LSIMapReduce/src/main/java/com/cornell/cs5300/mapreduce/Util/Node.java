@@ -12,9 +12,13 @@ public class Node implements Comparable<Node> {
 	Set<Node> inDegreeSet = new HashSet<Node>();
 	Set<Node> outDegreeSet = new HashSet<Node>();
 
+	List<String> outAdjListString = new LinkedList<String>();
+
 	String name;
 	float prValue;
 	String blockNumber;
+	int degree;
+	double parank;
 
 	public Node(String name) {
 		// TODO Auto-generated constructor stub
@@ -23,6 +27,15 @@ public class Node implements Comparable<Node> {
 
 	public Node() {
 
+	}
+
+	void setPageRank(String pgrk) {
+
+		parank = Double.parseDouble(pgrk);
+	}
+
+	double getPageRank() {
+		return parank;
 	}
 
 	void addNeighbourOut(Node node) {
@@ -35,6 +48,33 @@ public class Node implements Comparable<Node> {
 
 	}
 
+	void setOutDegree(int degree) {
+
+		this.degree = degree;
+
+	}
+
+	void setrAdjList(String line) {
+
+		String aList = line.trim();
+		String al[] = aList.split(" ");
+		for (String node : al) {
+			outAdjListString.add(node);
+
+		}
+
+	}
+
+	int getOutDegree() {
+
+		return degree;
+	}
+
+	List<String> getAdjList() {
+
+		return outAdjListString;
+	}
+
 	void addNeighbourOut(String dest) {
 		Node node = new Node(dest);
 		addNeighbourOut(node);
@@ -44,9 +84,6 @@ public class Node implements Comparable<Node> {
 	void addNeighbouIn(String str[]) {
 
 	}
-	
-	
-	
 
 	public int hashCode() {
 		int sum = 0;
