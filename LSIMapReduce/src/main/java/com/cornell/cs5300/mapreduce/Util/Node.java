@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Node implements Comparable<Node> {
 
-	List<Node> inAdjList = new LinkedList<Node>();
+	List<String> inAdjList = new LinkedList<String>();
 	List<Node> outAdjList = new LinkedList<Node>();
 
 	Set<Node> inDegreeSet = new HashSet<Node>();
@@ -19,26 +19,52 @@ public class Node implements Comparable<Node> {
 	String blockNumber;
 	int degree;
 	double parank;
+	double boudaryPageRank;
+	boolean isSource = false;
+	boolean inSameBlock;
+
+	public void setBoundaryPagerank(String prval) {
+
+		Double pr = Double.parseDouble(prval);
+		boudaryPageRank += pr;
+	}
+
+	public double getBoudaryPagerank() {
+
+		return boudaryPageRank;
+	}
 
 	public Node(String name) {
 		// TODO Auto-generated constructor stub
 		this.name = name;
 	}
 
+	// To check node is Source in Block or not
+	public void setIsSource() {
+
+		isSource = true;
+	}
+
+	public boolean getIsSource() {
+
+		return isSource;
+
+	}
+
 	public Node() {
 
 	}
 
-	void setPageRank(String pgrk) {
+	public void setPageRank(String pgrk) {
 
 		parank = Double.parseDouble(pgrk);
 	}
 
-	double getPageRank() {
+	public double getPageRank() {
 		return parank;
 	}
 
-	void addNeighbourOut(Node node) {
+	public void addNeighbourOut(Node node) {
 
 		if (!outDegreeSet.contains(node)) {
 			outDegreeSet.add(node);
@@ -48,41 +74,63 @@ public class Node implements Comparable<Node> {
 
 	}
 
-	void setOutDegree(int degree) {
+	public void setOutDegree(String degree) {
 
-		this.degree = degree;
+		this.degree = Integer.parseInt(degree);
 
 	}
 
-	void setrAdjList(String line) {
+	public void setName(String name) {
 
-		String aList = line.trim();
-		String al[] = aList.split(" ");
-		for (String node : al) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setBlock(String block) {
+
+		this.blockNumber = block;
+	}
+
+	public String getBlock() {
+		return blockNumber;
+	}
+
+	public void setrAdjList(String aL[]) {
+
+		for (String node : aL) {
 			outAdjListString.add(node);
 
 		}
 
 	}
 
-	int getOutDegree() {
+	public int getOutDegree() {
 
 		return degree;
 	}
 
-	List<String> getAdjList() {
+	public List<String> getAdjList() {
 
 		return outAdjListString;
 	}
 
-	void addNeighbourOut(String dest) {
+	public void addNeighbourOut(String dest) {
 		Node node = new Node(dest);
 		addNeighbourOut(node);
 
 	}
 
-	void addNeighbouIn(String str[]) {
+	public void addInAddlst(String str) {
 
+		inAdjList.add(str);
+	}
+
+	public List<String> getIndegreeAdjList() {
+
+		return inAdjList;
 	}
 
 	public int hashCode() {

@@ -26,7 +26,7 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 		mapperKey.set(blockid.trim());
 		
 		Text mapperOutput = new Text();
-		mapperOutput.set( Constants.GRAPH_IDENTIFIER + line);
+		mapperOutput.set( Constants.GRAPH_IDENTIFIER+Constants.DELIMITER + line);
 		
 		context.write(mapperKey,mapperOutput);
 		

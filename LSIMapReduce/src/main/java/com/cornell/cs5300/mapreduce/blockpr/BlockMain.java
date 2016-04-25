@@ -79,8 +79,7 @@ public class BlockMain {
 		try
 		{
 		conf = Job.getInstance(new Configuration(), "BlockPageRank");
-		conf.setReducerClass(SimplePageRankReduce.class);
-
+	
 		conf.setJarByClass(BlockMain.class);
 		conf.setMapperClass(BlockMapper.class);
 		conf.setMapOutputKeyClass(Text.class);
