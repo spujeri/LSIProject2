@@ -31,7 +31,7 @@ public class SimplePageRankingMain {
 		int iteration = 1;
 		String input = null;
 		StringBuilder outStr = new StringBuilder();
-		while (iteration <= Constants.numberOfIterations) {
+		while (true) {
 			
 			Job conf = Job.getInstance(new Configuration(), "PageRank");
 
@@ -72,7 +72,7 @@ public class SimplePageRankingMain {
 				break;
 
 			// reset residual counter after each iteration
-			conf.getCounters().findCounter(Counter.COUNTER).setValue(0);
+			conf.getCounters().findCounter(Counter.COUNTER).setValue(0L);
 			iteration++;
 		}
 

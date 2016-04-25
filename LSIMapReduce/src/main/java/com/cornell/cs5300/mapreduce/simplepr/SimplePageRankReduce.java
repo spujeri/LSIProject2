@@ -75,7 +75,7 @@ public class SimplePageRankReduce extends Reducer<Text, Text, Text, Text> {
 		
 		//System.out.println("Double residual value is " + residual);
 		
-		long residualLong = (long) residual * 1000000;
+		long residualLong = (long) Math.ceil(residual * 1000000);
 		
 		//System.out.println("residual value is " + residualLong);
 		//System.out.println("Initial counter value is " + context.getCounter(Counter.COUNTER));

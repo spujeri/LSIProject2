@@ -46,7 +46,7 @@ public abstract class Constants {
 	public static final String DIIFERENT_BLOCK_IDENTIFIER = "BC";
 	
 	
-	public static final double ERROR_THRESHHOLD = 0.001;
+	public static final double ERROR_THRESHHOLD = 0.00001;
 	
 	public static final int numberOfIterations = 2;
 	
