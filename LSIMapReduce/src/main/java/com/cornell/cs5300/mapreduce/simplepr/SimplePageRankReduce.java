@@ -31,7 +31,7 @@ public class SimplePageRankReduce extends Reducer<Text, Text, Text, Text> {
 		for(Text valueTxt:values) {
 
 			
-			String value = valueTxt.toString();
+			String value = valueTxt.toString().trim();
 
 			//System.out.println(" Value got from map is " + value);
 			
