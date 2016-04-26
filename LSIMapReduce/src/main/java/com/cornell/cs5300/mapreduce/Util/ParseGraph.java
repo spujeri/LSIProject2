@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.util.*;
 
 public class ParseGraph {
-	double fromNetID = 0.9332; // 82 is 28 reversed
+	double fromNetID = 0.572; // 82 is 28 reversed
 	double rejectMin = 0.9 * fromNetID;
 	double rejectLimit = rejectMin + 0.01;
 	Map<String, Node> nodeMap = new HashMap<String, Node>();

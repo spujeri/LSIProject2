@@ -19,7 +19,7 @@ public class Node implements Comparable<Node> {
 	String blockNumber;
 	int degree;
 	double parank;
-	double boudaryPageRank;
+	double boudaryPageRank = 0.0;
 	boolean isSource = false;
 	boolean inSameBlock;
 

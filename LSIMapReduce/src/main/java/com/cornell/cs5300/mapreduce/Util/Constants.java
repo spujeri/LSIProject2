@@ -12,7 +12,7 @@ public abstract class Constants {
 
 
 	public static final String FILTERED_EDGES = "/Users/Shiva/Documents/Masters/Assignements/LSI/proj2/filteredEdges.txt";
-	public static final String FILTERED_EDGES_DEGREE = "/Users/Shiva/Documents/Masters/Assignements/LSI/proj2/filteredEdgesAdjList.txt";
+	public static final String FILTERED_EDGES_DEGREE = "/Users/Shiva/Documents/Masters/Assignements/LSI/proj2/TestfilteredEdgesAdjList.txt";
 
 
 //	public static final String FILTERED_EDGES = "/Users/mihir/Documents/MEng folder new/LSI/Project2/input/filteredEdges.txt";
@@ -25,8 +25,8 @@ public abstract class Constants {
 	// public static final String BLOCK_PATH = "/Users/mihir/Documents/MEng
 	// folder new/LSI/Project2/input/blocks.txt";
 
-	public static final String EDGES_PATH = "/Users/Shiva/Documents/Masters/Assignements/LSI/proj2/input/edgestest.txt";
-	public static final String BLOCK_PATH = "/Users/Shiva/Documents/Masters/Assignements/LSI/proj2/input/blocks.txt";
+	public static final String EDGES_PATH = "/Users/Shiva/Documents/Masters/Assignements/LSI/proj2/edges.txt";
+	public static final String BLOCK_PATH = "/Users/Shiva/Documents/Masters/Assignements/LSI/proj2/blocks.txt";
 
 
 	public static final double D_PR = 0.85;
@@ -46,9 +46,9 @@ public abstract class Constants {
 	public static final String DIIFERENT_BLOCK_IDENTIFIER = "BC";
 	
 	
-	public static final double ERROR_THRESHHOLD = 0.00001;
+	public static final double ERROR_THRESHHOLD = 0.001;
 	
-	public static final int numberOfIterations = 2;
+	public static final int numberOfIterations = 10;
 	
 	
 	

@@ -17,24 +17,25 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 		String line = value.toString().trim();
 		
 		String split[] = line.split(Constants.DELIMITER);
-		String blockid = giveBlockId(split[0]);
-		String nodeid = giveNodeId(split[0]);
+		String blockid = giveBlockId(split[0].trim());
+		String nodeid = giveNodeId(split[0].trim());
 		
-		double outdegree = Double.parseDouble(split[1]);
+		double outdegree = Double.parseDouble(split[1].trim());
 		
 		Text mapperKey = new Text();
 		mapperKey.set(blockid.trim());
 		
 		Text mapperOutput = new Text();
-		mapperOutput.set( Constants.GRAPH_IDENTIFIER+Constants.DELIMITER + line);
 		
+		mapperOutput.set( Constants.GRAPH_IDENTIFIER+Constants.DELIMITER + line);
+		System.out.println("MAPPER EMMITING GRAPH "+ mapperOutput.toString() );
 		context.write(mapperKey,mapperOutput);
 		
 		for(int j=3 ; j < split.length; j ++ )
 		{
-			String adjnodeid = giveNodeId(split[j]);
-			String adjblockid = giveBlockId(split[j]);
-			double pagerankTopass = Double.parseDouble(split[2]) / outdegree;
+			String adjnodeid = giveNodeId(split[j].trim());
+			String adjblockid = giveBlockId(split[j].trim());
+			double pagerankTopass = Double.parseDouble(split[2].trim()) / outdegree;
 			
 			Text same_block = new Text();
 			Text different_block = new Text();
@@ -45,6 +46,7 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 				
 			same_block.clear();
 			same_block.set(Constants.SAME_BLOCK_IDENTIFIER + Constants.DELIMITER + nodeid + Constants.DELIMITER + adjnodeid);
+			System.out.println("MAPPER SAME GRAPH "+ "key" + mapperKey.toString() + "VALUE" +same_block.toString());
 			context.write(mapperKey, same_block );
 				
 			}
@@ -56,6 +58,7 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 				adjblockkey.set(adjblockid.trim());
 				different_block.clear();
 				different_block.set(Constants.DIIFERENT_BLOCK_IDENTIFIER + Constants.DELIMITER +  nodeid + Constants.DELIMITER + adjnodeid + Constants.DELIMITER + pagerankTopass	 );
+				System.out.println("MAPPER DIfferetn GRAPH "+ "key" + adjblockkey.toString() + "VALUE" +different_block.toString());
 				context.write(adjblockkey, different_block);
 				
 				

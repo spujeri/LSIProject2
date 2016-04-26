@@ -54,7 +54,7 @@ public class BlockMain {
 					break;
 
 				// reset residual counter after each iteration
-				conf.getCounters().findCounter(Counter.COUNTER).setValue(0);
+				conf.getCounters().findCounter(Counter.COUNTER).setValue(0L);
 				iteration++;
 			}
 

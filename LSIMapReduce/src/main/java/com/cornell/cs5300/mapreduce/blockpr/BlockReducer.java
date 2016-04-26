@@ -1,6 +1,7 @@
 package com.cornell.cs5300.mapreduce.blockpr;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,29 +20,24 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 	Map<String, Node> blockNodeMap = new HashMap<String, Node>();
 
+	Map<String, List<String>> BEMap = new HashMap<String, List<String>>();
+	Map<String, Double> BCMap = new HashMap<String, Double>();
+	Map<String, Double> nprMap = new HashMap<String, Double>();
+
 	Node createGetNode(String line) {
 
-		String values[] = line.split(" ");
+		String values[] = line.trim().split(" ");
 		Node node = null;
 		node = blockNodeMap.get(values[0]);
-		if (node == null) {
-			node = new Node();
 
-			node.setName(values[0]);
-			node.setOutDegree(values[1]);
-			node.setPageRank(values[2]);
-			if (node.getOutDegree() > 0 && values.length > 3) {
-				node.setrAdjList(Arrays.copyOfRange(values, 3, values.length));
+		node = new Node();
 
-			}
-		} else {
-			node.setName(values[0]);
-			node.setOutDegree(values[1]);
-			node.setPageRank(values[2]);
-			if (node.getOutDegree() > 0 && values.length > 3) {
-				node.setrAdjList(Arrays.copyOfRange(values, 3, values.length));
+		node.setName(values[0].trim());
+		node.setOutDegree(values[1].trim());
+		node.setPageRank(values[2].trim());
+		if (node.getOutDegree() > 0 && values.length > 3) {
+			node.setrAdjList(Arrays.copyOfRange(values, 3, values.length));
 
-			}
 		}
 
 		return node;
@@ -66,12 +62,11 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 		// StringBuilder reducerOutput = new
 		// StringBuilder(key.toString().trim());
-		StringBuilder adjList = new StringBuilder("");
-		String outDegree = "0";
-		Double newPagerank = 0.0;
-
-		Double oldPagerank = 0.0;
+		
 		blockNodeMap.clear();
+		BEMap.clear();
+		BCMap.clear();
+		nprMap.clear();
 
 		// //System.out.println("----------key from map is -------");
 		//// System.out.println(key);
@@ -86,134 +81,139 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 			if (value.contains(Constants.GRAPH_IDENTIFIER)) {
 				value = getLine(value);
+				// System.out.println("New line after removing the graph prefix
+				// " + value);
 				Node node = createGetNode(value);
 				node.setIsSource();
 				blockNodeMap.put(node.getName(), node);
 
-			} else if (value.contains(Constants.SAME_BLOCK_IDENTIFIER)) {
-
+			} else if (value.trim().contains(Constants.SAME_BLOCK_IDENTIFIER)) {
+				value = value.trim();
 				String nodes[] = value.split(" ");
-				String nodeID = nodes[2];
-
-				Node node = blockNodeMap.get(nodeID);
-
-				// If the node is only the sink then it needs to considered in
-				// PR caluation.
-				// as it may not have come as line from mapper
-				if (node == null) {
-
-					node = new Node();
-					node.setName(nodeID);
+				String nodeV = nodes[2];
+				String nodeU = nodes[1];
+				List<String> uLst = BEMap.get(nodeV);
+				if (uLst == null) {
+					uLst = new ArrayList<String>();
 
 				}
 
-				// Check for the same name in map everywhere
-				node.addInAddlst(nodes[1]);
-				blockNodeMap.put(node.getName(), node);
+				//System.out.println("Inside same block node v" +nodeV +"list"+uLst);
+				uLst.add(nodeU);
+				BEMap.put(nodeV, uLst);
 
-			} else if (value.contains(Constants.DIIFERENT_BLOCK_IDENTIFIER)) {
+			} else if (value.trim().contains(Constants.DIIFERENT_BLOCK_IDENTIFIER)) {
 
+				value = value.trim();
 				String nodes[] = value.split(" ");
-				String nodeID = nodes[2];
+				String nodeV = nodes[2];
+				String nodeU = nodes[1];
+				Double bcPr = 0.0;
+				;
 
-				Node node = blockNodeMap.get(nodeID);
-
-				// If the node is only the sink then it needs to considered in
-				// PR caluation.
-				// as it may not have come as line from mapper
-				if (node == null) {
-
-					node = new Node();
-					node.setName(nodeID);
-
+				if (BCMap.containsKey(nodeV)) {
+					bcPr = BCMap.get(nodeV);
+				} else {
+					bcPr = 0.0;
 				}
-
-				// Check for the same name in map everywhere
-				node.setBoundaryPagerank(nodes[3]);
-				blockNodeMap.put(node.getName(), node);
+				//System.out.println("Inside different block node v "+ nodeV + " node u" +nodeU);
+				bcPr += Double.parseDouble(nodes[3]);
+				BCMap.put(nodeV, bcPr);
 
 			}
 
 		}
-
+		System.out.println("BC Map" + BCMap);
+		System.out.println("BE MAP " + BEMap);
 		Map<String, Double> startPageRank = new HashMap<String, Double>();
 
 		for (Node node : blockNodeMap.values()) {
 			startPageRank.put(node.getName(), node.getPageRank());
 
+			//System.out.println("Node name " + node.getName() + " List " + BEMap.get(node.getName()));
+
 		}
 
-		int reduceIteration = 0;
+		int reducePrIteration = 1;
 		double resudual = Double.MAX_VALUE;
-		while (resudual > Constants.ERROR_THRESHHOLD) {
+		while (resudual > Constants.ERROR_THRESHHOLD && reducePrIteration <= 5) {
 
 			resudual = iterateBlockOnce();
-			reduceIteration++;
+			reducePrIteration++;
 		}
+
+		double resudualError = 0.0;
 
 		for (Node node : blockNodeMap.values()) {
 			StringBuilder reducerOutput = new StringBuilder();
-			if (node.getIsSource()) {
-				reducerOutput.append(node.getName()).append(Constants.DELIMITER).append(node.getOutDegree())
-						.append(Constants.DELIMITER).append(node.getPageRank());
-				List<String> adjlist = node.getAdjList();
+			// if (node.getIsSource()) {
+			reducerOutput.append(node.getName()).append(Constants.DELIMITER).append(node.getOutDegree())
+					.append(Constants.DELIMITER).append(nprMap.get(node.getName()));
+			List<String> adjlist = node.getAdjList();
 
-				for (String adjNode : adjlist) {
+			for (String adjNode : adjlist) {
 
-					reducerOutput.append(Constants.DELIMITER).append(adjNode);
-				}
-
-				context.write(new Text(""), new Text(reducerOutput.toString()));
-
+				reducerOutput.append(Constants.DELIMITER).append(adjNode);
 			}
 
-			System.out.println(
-					"Start Pagerank " + startPageRank.get(node.getName()) + " End PageRank " + node.getPageRank());
+			context.write(new Text(""), new Text(reducerOutput.toString().trim()));
 
-			resudual += Math.abs(startPageRank.get(node.getName()) - node.getPageRank()) / node.getPageRank();
+			// }
+
+			// System.out.println(
+			// "Start Pagerank " + startPageRank.get(node.getName()) + "
+			// EndPageRank " + node.getPageRank());
+
+			resudualError += Math.abs(startPageRank.get(node.getName()) - nprMap.get(node.getName()))
+					/ nprMap.get(node.getName());
+			System.out.println("Start Pagerank " + startPageRank.get(node.getName()) + " EndPageRank "
+					+ nprMap.get(node.getName())+ " residual " + resudualError);
 
 		}
 
-		Long residualLong = (long) resudual * 1000000;
+		Long residualLong = (long) Math.floor(resudualError) * 1000000;
 		context.getCounter(Counter.COUNTER).increment(residualLong);
 
 		// System.out.println(" Counter value after incremeniting is " +
 		// context.getCounter(Counter.COUNTER) );
+		cleanup(context);
 
 	}
 
 	double iterateBlockOnce() {
 
+		System.out.println("WHOLE BLOCK GRAPH "+ blockNodeMap);
 		Double residual = 0.0;
 		for (Node node : blockNodeMap.values()) {
 			double newPageRank = 0.0;
-
-			List<String> inDegreeNodes = node.getIndegreeAdjList();
-
+			String nodeV = node.getName();
+			List<String> inDegreeNodes = BEMap.get(nodeV);
+			System.out.println("Node " + nodeV + "List " + inDegreeNodes);
 			if (inDegreeNodes != null) {
 				for (String uName : inDegreeNodes) {
 					Node nodetmp = blockNodeMap.get(uName);
-					// For edges inside the block
-					if (nodetmp != null) {
-						if (nodetmp.getIsSource()) {
-							newPageRank += nodetmp.getPageRank() / nodetmp.getOutDegree();
-						}
+					// For edges inside the blhetock
+					// if (nodetmp.getIsSource()) {
+					System.out.println("REDUCER MR Node "+node.getName() + " PAGERANK" + nodetmp.getPageRank() + "OUTDEGREE"+nodetmp.getOutDegree());
+					newPageRank += nodetmp.getPageRank() / nodetmp.getOutDegree();
+					// }
 
-						// Edges coming from outside
-						// Boundary page rank is calculated when edge with BE
-						// comes
-						// for the node
-						newPageRank += nodetmp.getBoudaryPagerank();
-					}
+					// Edges coming from outside
+					// Boundary page rank is calculated when edge with BE
+					// comes
+					// for the node
+
 				}
-
 			}
 
+			if (BCMap.containsKey(nodeV))
+				newPageRank += BCMap.get(nodeV);
+
 			newPageRank *= Constants.D_PR;
-			newPageRank += (1 - Constants.D_PR) / Constants.N;
+			newPageRank += (1 - Constants.D_PR) / blockNodeMap.size();
 
 			residual += Math.abs(newPageRank - node.getPageRank()) / newPageRank;
-			node.setPageRank(String.valueOf(newPageRank));
+			nprMap.put(nodeV, newPageRank);
 
 		}
 
