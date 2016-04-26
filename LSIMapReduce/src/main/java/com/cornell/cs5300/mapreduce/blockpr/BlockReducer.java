@@ -28,11 +28,12 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 		String values[] = line.trim().split(" ");
 		Node node = null;
+		// System.out.println("NODE with BLOCk " + values[0]);
 		node = blockNodeMap.get(values[0]);
 
 		node = new Node();
-
-		node.setName(values[0].trim());
+		String nodename = BlockMapper.giveNodeId(values[0].trim());
+		node.setName(nodename);
 		node.setOutDegree(values[1].trim());
 		node.setPageRank(values[2].trim());
 		if (node.getOutDegree() > 0 && values.length > 3) {
@@ -62,26 +63,27 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 		// StringBuilder reducerOutput = new
 		// StringBuilder(key.toString().trim());
-		
+
 		blockNodeMap.clear();
 		BEMap.clear();
 		BCMap.clear();
 		nprMap.clear();
 
-		// //System.out.println("----------key from map is -------");
-		//// System.out.println(key);
+		// ////system.out.println("----------key from map is -------");
+		//// //system.out.println(key);
 
-		// System.out.println("ITERATOR INSIDE REDUCER" + values);
+		// //system.out.println("ITERATOR INSIDE REDUCER" + values);
 
 		for (Text valueTxt : values) {
 
 			String value = valueTxt.toString().trim();
 
-			// System.out.println(" Value got from map is " + value);
+			// //system.out.println(" Value got from map is " + value);
 
 			if (value.contains(Constants.GRAPH_IDENTIFIER)) {
 				value = getLine(value);
-				// System.out.println("New line after removing the graph prefix
+				// //system.out.println("New line after removing the graph
+				// prefix
 				// " + value);
 				Node node = createGetNode(value);
 				node.setIsSource();
@@ -98,9 +100,23 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 				}
 
-				//System.out.println("Inside same block node v" +nodeV +"list"+uLst);
+				//// system.out.println("Inside same block node v" +nodeV
+				//// +"list"+uLst);
+				Node node = blockNodeMap.get(nodeV);
+
+				// If the node is only the sink then it needs to considered in
+				// PR caluation.
+				// as it may not have come as line from mapper
+				if (node == null) {
+
+					node = new Node();
+					node.setName(nodeV);
+
+				}
+
 				uLst.add(nodeU);
 				BEMap.put(nodeV, uLst);
+				blockNodeMap.put(nodeV, node);
 
 			} else if (value.trim().contains(Constants.DIIFERENT_BLOCK_IDENTIFIER)) {
 
@@ -116,27 +132,42 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 				} else {
 					bcPr = 0.0;
 				}
-				//System.out.println("Inside different block node v "+ nodeV + " node u" +nodeU);
+				//// system.out.println("Inside different block node v "+ nodeV
+				//// + " node u" +nodeU);
+				Node node = blockNodeMap.get(nodeV);
+
+				// If the node is only the sink then it needs to considered in
+				// PR caluation.
+				// as it may not have come as line from mapper
+				if (node == null) {
+
+					node = new Node();
+					node.setName(nodeV);
+
+				}
 				bcPr += Double.parseDouble(nodes[3]);
 				BCMap.put(nodeV, bcPr);
+				blockNodeMap.put(nodeV, node);
 
 			}
 
 		}
-		System.out.println("BC Map" + BCMap);
-		System.out.println("BE MAP " + BEMap);
+		// system.out.println("BC Map" + BCMap);
+		// system.out.println("BE MAP " + BEMap);
 		Map<String, Double> startPageRank = new HashMap<String, Double>();
 
 		for (Node node : blockNodeMap.values()) {
 			startPageRank.put(node.getName(), node.getPageRank());
 
-			//System.out.println("Node name " + node.getName() + " List " + BEMap.get(node.getName()));
+			//// system.out.println("Node name " + node.getName() + " List " +
+			//// BEMap.get(node.getName()));
 
 		}
 
 		int reducePrIteration = 1;
 		double resudual = Double.MAX_VALUE;
 		while (resudual > Constants.ERROR_THRESHHOLD && reducePrIteration <= 5) {
+			// while (resudual > Constants.ERROR_THRESHHOLD ) {
 
 			resudual = iterateBlockOnce();
 			reducePrIteration++;
@@ -147,8 +178,9 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 		for (Node node : blockNodeMap.values()) {
 			StringBuilder reducerOutput = new StringBuilder();
 			// if (node.getIsSource()) {
-			reducerOutput.append(node.getName()).append(Constants.DELIMITER).append(node.getOutDegree())
-					.append(Constants.DELIMITER).append(nprMap.get(node.getName()));
+			reducerOutput.append(node.getName() + Constants.IDSEPARATOR + key.toString().trim())
+					.append(Constants.DELIMITER).append(node.getOutDegree()).append(Constants.DELIMITER)
+					.append(nprMap.get(node.getName()));
 			List<String> adjlist = node.getAdjList();
 
 			for (String adjNode : adjlist) {
@@ -160,21 +192,23 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 			// }
 
-			// System.out.println(
+			// //system.out.println(
 			// "Start Pagerank " + startPageRank.get(node.getName()) + "
 			// EndPageRank " + node.getPageRank());
 
 			resudualError += Math.abs(startPageRank.get(node.getName()) - nprMap.get(node.getName()))
 					/ nprMap.get(node.getName());
-			System.out.println("Start Pagerank " + startPageRank.get(node.getName()) + " EndPageRank "
-					+ nprMap.get(node.getName())+ " residual " + resudualError);
-
+			/*
+			 * System.out.println("Start Pagerank " +
+			 * startPageRank.get(node.getName()) + " EndPageRank " +
+			 * nprMap.get(node.getName())+ " residual " + resudualError);
+			 */
 		}
 
-		Long residualLong = (long) Math.floor(resudualError) * 1000000;
+		Long residualLong = (long) Math.ceil(resudualError) * 1000000;
 		context.getCounter(Counter.COUNTER).increment(residualLong);
 
-		// System.out.println(" Counter value after incremeniting is " +
+		// //system.out.println(" Counter value after incremeniting is " +
 		// context.getCounter(Counter.COUNTER) );
 		cleanup(context);
 
@@ -182,19 +216,21 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 	double iterateBlockOnce() {
 
-		System.out.println("WHOLE BLOCK GRAPH "+ blockNodeMap);
+		// system.out.println("WHOLE BLOCK GRAPH "+ blockNodeMap);
 		Double residual = 0.0;
 		for (Node node : blockNodeMap.values()) {
 			double newPageRank = 0.0;
 			String nodeV = node.getName();
 			List<String> inDegreeNodes = BEMap.get(nodeV);
-			System.out.println("Node " + nodeV + "List " + inDegreeNodes);
+			// system.out.println("Node " + nodeV + "List " + inDegreeNodes);
 			if (inDegreeNodes != null) {
 				for (String uName : inDegreeNodes) {
 					Node nodetmp = blockNodeMap.get(uName);
 					// For edges inside the blhetock
 					// if (nodetmp.getIsSource()) {
-					System.out.println("REDUCER MR Node "+node.getName() + " PAGERANK" + nodetmp.getPageRank() + "OUTDEGREE"+nodetmp.getOutDegree());
+					// system.out.println("REDUCER MR Node "+node.getName() + "
+					// PAGERANK" + nodetmp.getPageRank() +
+					// "OUTDEGREE"+nodetmp.getOutDegree());
 					newPageRank += nodetmp.getPageRank() / nodetmp.getOutDegree();
 					// }
 

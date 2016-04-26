@@ -28,7 +28,7 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 		Text mapperOutput = new Text();
 		
 		mapperOutput.set( Constants.GRAPH_IDENTIFIER+Constants.DELIMITER + line);
-		System.out.println("MAPPER EMMITING GRAPH "+ mapperOutput.toString() );
+		//system.out.println("MAPPER EMMITING GRAPH "+ mapperOutput.toString() );
 		context.write(mapperKey,mapperOutput);
 		
 		for(int j=3 ; j < split.length; j ++ )
@@ -46,7 +46,7 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 				
 			same_block.clear();
 			same_block.set(Constants.SAME_BLOCK_IDENTIFIER + Constants.DELIMITER + nodeid + Constants.DELIMITER + adjnodeid);
-			System.out.println("MAPPER SAME GRAPH "+ "key" + mapperKey.toString() + "VALUE" +same_block.toString());
+			//system.out.println("MAPPER SAME GRAPH "+ "key" + mapperKey.toString() + "VALUE" +same_block.toString());
 			context.write(mapperKey, same_block );
 				
 			}
@@ -58,7 +58,7 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 				adjblockkey.set(adjblockid.trim());
 				different_block.clear();
 				different_block.set(Constants.DIIFERENT_BLOCK_IDENTIFIER + Constants.DELIMITER +  nodeid + Constants.DELIMITER + adjnodeid + Constants.DELIMITER + pagerankTopass	 );
-				System.out.println("MAPPER DIfferetn GRAPH "+ "key" + adjblockkey.toString() + "VALUE" +different_block.toString());
+				////system.out.println("MAPPER DIfferetn GRAPH "+ "key" + adjblockkey.toString() + "VALUE" +different_block.toString());
 				context.write(adjblockkey, different_block);
 				
 				
@@ -71,13 +71,23 @@ public class BlockMapper extends Mapper<LongWritable, Text, Text, Text> {
 	
 	public static String giveNodeId(String s)
 	{
+		
+		try
+		{
 		return s.substring(0, s.indexOf(Constants.IDSEPARATOR));
+		}
+		catch(Exception e)
+		{
+			System.out.println("NODE WITH BLOCK=" + s);
+			e.printStackTrace();
+			return null;
+		}
 		
 	}
 	
 	public static String giveBlockId(String s)
 	{
-		return s.substring(s.indexOf(Constants.IDSEPARATOR),s.length() );
+		return s.substring(s.indexOf(Constants.IDSEPARATOR)+1,s.length() );
 	}
 	
 	
