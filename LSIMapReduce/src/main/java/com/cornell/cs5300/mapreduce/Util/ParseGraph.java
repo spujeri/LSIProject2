@@ -4,7 +4,15 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class ParseGraph {
 	double fromNetID = 0.572; // 82 is 28 reversed
@@ -69,6 +77,7 @@ public class ParseGraph {
 			// FileReader(Constants.BLOCK_PATH));
 			BufferedWriter bwr = new BufferedWriter(new FileWriter(Constants.FILTERED_EDGES));
 			BufferedReader brEdges = new BufferedReader(new FileReader(Constants.EDGES_PATH));
+			Set<String> nodeSet = new HashSet<String>();
 
 			String line = null;
 			while ((line = brEdges.readLine()) != null) {
@@ -87,6 +96,10 @@ public class ParseGraph {
 				s[0] = source;
 				s[1] = dest;
 				s[2] = eValue;
+				
+				nodeSet.add(s[0].trim());
+				
+				
 
 				if (selectInputLine(Double.parseDouble(eValue))) {
 					int sourceInt = Integer.parseInt(source);
@@ -101,6 +114,12 @@ public class ParseGraph {
 				}
 
 			}
+			
+			
+			// writing the sink node in the fileteredEdges file
+			
+			
+			
 			brEdges.close();
 			bwr.close();
 		} catch (Exception e) {
@@ -194,11 +213,19 @@ public class ParseGraph {
 			}
 
 			
-			Iterator< Integer> keysit = degreeMap.keySet().iterator(); 
-			while (keysit.hasNext()) {
+			Iterator<Integer> keysit = degreeMap.keySet().iterator(); 
+			
+			
+			
+			for (int j=0; j < Constants.N; j++ ) {
 				// System.out.println(line);
 
-				String val = degreeMap.get(keysit.next());
+				
+				if(degreeMap.containsKey(j))
+				{
+				
+				
+				String val = degreeMap.get(j);
 				String split[] = val.split(" ");
 			
 				int outDegree = split.length - 1 ;
@@ -210,12 +237,25 @@ public class ParseGraph {
 				for(int i = 1; i<split.length; i++)
 					newVal.append(" ").append(split[i]);
 				
-			//	String vale= val+ String.valueOf(Constants.initilaPR);
+			
 				System.out.println(newVal);
 				bwr.write(newVal.toString());
 				bwr.write("\n");
 
-			}
+				}
+				
+				else
+				{
+					
+					int sourceBlockId = getBlockId(j);
+					StringBuilder newVal = new StringBuilder(String.valueOf(j) + Constants.IDSEPARATOR + String.valueOf(sourceBlockId)).append(" ").append(0).append(" ").append(String.valueOf(Constants.initilaPR));
+					bwr.write(newVal.toString());
+					bwr.write("\n");
+				}
+				
+				
+				
+			} // end of for loop
 
 			bwr.close();
 			brEdges.close();
@@ -229,7 +269,7 @@ public class ParseGraph {
 
 		ParseGraph pgraph = new ParseGraph();
 		System.out.println(pgraph.listBlock);
-	//	 pgraph.praseEdges();
+		pgraph.praseEdges();
 		// pgraph.dispNodes();
 		pgraph.computeAdjList();
 	}
