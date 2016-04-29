@@ -11,11 +11,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
 public class ParseGraph {
-	double fromNetID = 0.572; // 82 is 28 reversed
+	double fromNetID = Constants.NET_ID; // 82 is 28 reversed
 	double rejectMin = 0.9 * fromNetID;
 	double rejectLimit = rejectMin + 0.01;
 	Map<String, Node> nodeMap = new HashMap<String, Node>();
@@ -70,7 +71,27 @@ public class ParseGraph {
 
 	}
 
-	public void praseEdges() {
+	/*
+	 * int getBlockIdRandom(int node) {
+	 * 
+	 * int blockId = ((byte) (node >>> 24) ^ (byte) (node >>> 16) ^ (byte) (node
+	 * >>> 8) ^ (byte) node) % 68;
+	 * 
+	 * if (blockId < 0) { blockId *= -1; }
+	 * 
+	 * // System.out.println("B:LOCK ID "+ blockId ); return blockId; }
+	 */
+
+	int getBlockIdRandom(int node) {
+
+		Random rn = new Random();
+		int range = Constants.MAXIMUM - Constants.MINIMUM + 1;
+		int randomNum = rn.nextInt(range) + Constants.MINIMUM;
+
+		return randomNum;
+	}
+
+	public void praseEdges(String random) {
 		try {
 
 			// brBlock = new BufferedReader(new
@@ -92,20 +113,26 @@ public class ParseGraph {
 				String eValue = new String(Arrays.copyOfRange(bar, 13, 25)).trim();
 				String s[] = new String[3];
 
-				System.out.println("source " + source + " dest " + dest + " edgeValue " + eValue);
+				/// System.out.println("source " + source + " dest " + dest + "
+				/// edgeValue " + eValue);
 				s[0] = source;
 				s[1] = dest;
 				s[2] = eValue;
-				
+
 				nodeSet.add(s[0].trim());
-				
-				
 
 				if (selectInputLine(Double.parseDouble(eValue))) {
 					int sourceInt = Integer.parseInt(source);
 					int destInt = Integer.parseInt(dest);
-					int sourceBlockId = getBlockId(sourceInt);
-					int destBlockId = getBlockId(destInt);
+					int sourceBlockId, destBlockId;
+					if (random.trim().equals(Constants.RANDOM_IDENTIFIER)) {
+						sourceBlockId = getBlockIdRandom(sourceInt);
+						destBlockId = getBlockIdRandom(destInt);
+
+					} else {
+						sourceBlockId = getBlockId(sourceInt);
+						destBlockId = getBlockId(destInt);
+					}
 					// sys
 					bwr.write(source + " " + sourceBlockId + " " + dest + " " + destBlockId);
 					bwr.write("\n");
@@ -114,12 +141,9 @@ public class ParseGraph {
 				}
 
 			}
-			
-			
+
 			// writing the sink node in the fileteredEdges file
-			
-			
-			
+
 			brEdges.close();
 			bwr.close();
 		} catch (Exception e) {
@@ -138,7 +162,7 @@ public class ParseGraph {
 		Set<String> keys = nodeMap.keySet();
 
 		for (String key : keys) {
-			System.out.println("Node name " + nodeMap.get(key).name);
+			// System.out.println("Node name " + nodeMap.get(key).name);
 		}
 
 	}
@@ -150,7 +174,7 @@ public class ParseGraph {
 
 			BufferedReader brEdges = new BufferedReader(new FileReader(Constants.FILTERED_EDGES));
 			BufferedWriter bwr = new BufferedWriter(new FileWriter(Constants.FILTERED_EDGES_DEGREE));
-			
+
 			String line = null;
 			while ((line = brEdges.readLine()) != null) {
 				// System.out.println(line);
@@ -196,11 +220,12 @@ public class ParseGraph {
 				// System.out.println(line);
 
 				String[] strs = line.split(" ");
-				Integer key = Integer.parseInt( strs[0].trim());
+				Integer key = Integer.parseInt(strs[0].trim());
 				if (degreeMap.containsKey(key)) {
-					
+
 					StringBuilder value = new StringBuilder(degreeMap.get(key)).append(strs[2]).append(",")
-							.append(strs[3]).append(" ");;
+							.append(strs[3]).append(" ");
+					;
 					degreeMap.put(key, value.toString());
 
 				} else {
@@ -212,49 +237,42 @@ public class ParseGraph {
 
 			}
 
-			
-			Iterator<Integer> keysit = degreeMap.keySet().iterator(); 
-			
-			
-			
-			for (int j=0; j < Constants.N; j++ ) {
+			Iterator<Integer> keysit = degreeMap.keySet().iterator();
+
+			for (int j = 0; j < Constants.N; j++) {
 				// System.out.println(line);
 
-				
-				if(degreeMap.containsKey(j))
-				{
-				
-				
-				String val = degreeMap.get(j);
-				String split[] = val.split(" ");
-			
-				int outDegree = split.length - 1 ;
-				
-				if(outDegree == 0)
-					System.out.println(split[0]);
-				
-				StringBuilder newVal = new StringBuilder(split[0]).append(" ").append(String.valueOf(outDegree)).append(" ").append(String.valueOf(Constants.initilaPR));
-				for(int i = 1; i<split.length; i++)
-					newVal.append(" ").append(split[i]);
-				
-			
-				System.out.println(newVal);
-				bwr.write(newVal.toString());
-				bwr.write("\n");
+				if (degreeMap.containsKey(j)) {
+
+					String val = degreeMap.get(j);
+					String split[] = val.split(" ");
+
+					int outDegree = split.length - 1;
+
+					if (outDegree == 0)
+						System.out.println(split[0]);
+
+					StringBuilder newVal = new StringBuilder(split[0]).append(" ").append(String.valueOf(outDegree))
+							.append(" ").append(String.valueOf(Constants.initilaPR));
+					for (int i = 1; i < split.length; i++)
+						newVal.append(" ").append(split[i]);
+
+					System.out.println(newVal);
+					bwr.write(newVal.toString());
+					bwr.write("\n");
 
 				}
-				
-				else
-				{
-					
+
+				else {
+
 					int sourceBlockId = getBlockId(j);
-					StringBuilder newVal = new StringBuilder(String.valueOf(j) + Constants.IDSEPARATOR + String.valueOf(sourceBlockId)).append(" ").append(0).append(" ").append(String.valueOf(Constants.initilaPR));
+					StringBuilder newVal = new StringBuilder(
+							String.valueOf(j) + Constants.IDSEPARATOR + String.valueOf(sourceBlockId)).append(" ")
+									.append(0).append(" ").append(String.valueOf(Constants.initilaPR));
 					bwr.write(newVal.toString());
 					bwr.write("\n");
 				}
-				
-				
-				
+
 			} // end of for loop
 
 			bwr.close();
@@ -269,7 +287,7 @@ public class ParseGraph {
 
 		ParseGraph pgraph = new ParseGraph();
 		System.out.println(pgraph.listBlock);
-		pgraph.praseEdges();
+		pgraph.praseEdges(a[0]);
 		// pgraph.dispNodes();
 		pgraph.computeAdjList();
 	}

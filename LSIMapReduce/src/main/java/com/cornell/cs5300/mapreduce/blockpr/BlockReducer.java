@@ -1,14 +1,8 @@
 package com.cornell.cs5300.mapreduce.blockpr;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
@@ -26,19 +20,28 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 	Node createGetNode(String line) {
 
-		String values[] = line.trim().split(" ");
+		String values[] = line.split(" ");
 		Node node = null;
-		// System.out.println("NODE with BLOCk " + values[0]);
 		node = blockNodeMap.get(values[0]);
+		if (node == null) {
+			node = new Node();
+			String nodeName = Node.giveNodeId(values[0].trim());
+			node.setName(nodeName);
+			node.setOutDegree(values[1]);
+			node.setPageRank(values[2]);
+			if (node.getOutDegree() > 0 && values.length > 3) {
+				node.setrAdjList(Arrays.copyOfRange(values, 3, values.length));
 
-		node = new Node();
-		String nodename = BlockMapper.giveNodeId(values[0].trim());
-		node.setName(nodename);
-		node.setOutDegree(values[1].trim());
-		node.setPageRank(values[2].trim());
-		if (node.getOutDegree() > 0 && values.length > 3) {
-			node.setrAdjList(Arrays.copyOfRange(values, 3, values.length));
+			}
+		} else {
+			String nodeName = Node.giveNodeId(values[0].trim());
+			node.setName(nodeName);
+			node.setOutDegree(values[1]);
+			node.setPageRank(values[2]);
+			if (node.getOutDegree() > 0 && values.length > 3) {
+				node.setrAdjList(Arrays.copyOfRange(values, 3, values.length));
 
+			}
 		}
 
 		return node;
@@ -64,6 +67,7 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 		// StringBuilder reducerOutput = new
 		// StringBuilder(key.toString().trim());
 
+		int minNode1 = Integer.MAX_VALUE, minNode2 = Integer.MAX_VALUE;
 		blockNodeMap.clear();
 		BEMap.clear();
 		BCMap.clear();
@@ -123,7 +127,7 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 				value = value.trim();
 				String nodes[] = value.split(" ");
 				String nodeV = nodes[2];
-				String nodeU = nodes[1];
+				// String nodeU = nodes[1];
 				Double bcPr = 0.0;
 				;
 
@@ -158,7 +162,13 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 		for (Node node : blockNodeMap.values()) {
 			startPageRank.put(node.getName(), node.getPageRank());
+			int nodeInt = Integer.parseInt(node.getName());
+			if (nodeInt < minNode1) {
+				minNode1 = nodeInt;
+			} else if (nodeInt < minNode2) {
 
+				minNode2 = nodeInt;
+			}
 			//// system.out.println("Node name " + node.getName() + " List " +
 			//// BEMap.get(node.getName()));
 
@@ -166,10 +176,11 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 		int reducePrIteration = 1;
 		double resudual = Double.MAX_VALUE;
-		while (resudual > Constants.ERROR_THRESHHOLD && reducePrIteration <= 5) {
-			// while (resudual > Constants.ERROR_THRESHHOLD ) {
+		// while (resudual > Constants.ERROR_THRESHHOLD && reducePrIteration <=
+		// 5) {
+		while (resudual > Constants.ERROR_THRESHHOLD) {
 
-			resudual = iterateBlockOnce();
+			resudual = iterateBlockOnce(context);
 			reducePrIteration++;
 		}
 
@@ -209,18 +220,25 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 		context.getCounter(Counter.COUNTER).increment(residualLong);
 
 		// //system.out.println(" Counter value after incremeniting is " +
+
 		// context.getCounter(Counter.COUNTER) );
+		System.out.println("BLOCK " + key.toString() + " MIN_NODE1 " + minNode1 + " PR "
+				+ blockNodeMap.get(String.valueOf(minNode1)).getPageRank() + " MIN_NODE2 " + minNode2 + " PR "
+				+ blockNodeMap.get(String.valueOf(minNode2)).getPageRank());
 		cleanup(context);
 
 	}
 
-	double iterateBlockOnce() {
+	double iterateBlockOnce(Reducer.Context context) {
 
 		// system.out.println("WHOLE BLOCK GRAPH "+ blockNodeMap);
 		Double residual = 0.0;
-		for (Node node : blockNodeMap.values()) {
+		Set<String> nodeKeys = blockNodeMap.keySet();
+		nprMap.clear();
+		for (String nodeV : nodeKeys) {
 			double newPageRank = 0.0;
-			String nodeV = node.getName();
+			Node node = blockNodeMap.get(nodeV);
+			// String nodeV = node.getName();
 			List<String> inDegreeNodes = BEMap.get(nodeV);
 			// system.out.println("Node " + nodeV + "List " + inDegreeNodes);
 			if (inDegreeNodes != null) {
@@ -240,20 +258,27 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 					// for the node
 
 				}
+
+				context.getCounter(Counter.AVG_ITERATION).increment(1);
 			}
 
 			if (BCMap.containsKey(nodeV))
 				newPageRank += BCMap.get(nodeV);
 
 			newPageRank *= Constants.D_PR;
-			newPageRank += (1 - Constants.D_PR) / blockNodeMap.size();
+			newPageRank += (1 - Constants.D_PR) / Constants.N;
 
 			residual += Math.abs(newPageRank - node.getPageRank()) / newPageRank;
 			nprMap.put(nodeV, newPageRank);
 
 		}
+		for (Node node : blockNodeMap.values()) {
 
-		return residual;
+			node.setPageRank(String.valueOf(nprMap.get(node.getName())));
+		}
+
+		// System.out.println("RESIDULA INSIDE LOCAL MAP REDUCE " + residual);
+		return residual / blockNodeMap.size();
 
 	}
 }

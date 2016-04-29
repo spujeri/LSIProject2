@@ -122,6 +122,28 @@ public class Node implements Comparable<Node> {
 		addNeighbourOut(node);
 
 	}
+	
+	
+	public static String giveNodeId(String s)
+	{
+		
+		try
+		{
+		return s.substring(0, s.indexOf(Constants.IDSEPARATOR));
+		}
+		catch(Exception e)
+		{
+			System.out.println("NODE WITH BLOCK=" + s);
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
+	public static String giveBlockId(String s)
+	{
+		return s.substring(s.indexOf(Constants.IDSEPARATOR)+1,s.length() );
+	}
 
 	public void addInAddlst(String str) {
 

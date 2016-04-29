@@ -3,15 +3,14 @@ package com.cornell.cs5300.mapreduce.blockpr;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import com.cornell.cs5300.mapreduce.Util.Constants;
 import com.cornell.cs5300.mapreduce.Util.Counter;
-import com.cornell.cs5300.mapreduce.simplepr.SimplePageRankMap;
-import com.cornell.cs5300.mapreduce.simplepr.SimplePageRankReduce;
-import com.cornell.cs5300.mapreduce.simplepr.SimplePageRankingMain;
+import com.sun.corba.se.impl.orbutil.closure.Constant;
 
 public class BlockMain {
 
@@ -28,7 +27,6 @@ public class BlockMain {
 		while (iteration <= Constants.numberOfIterations) {
 
 			try {
-			
 
 				if (iteration == 1) {
 					input = inputInitial;
@@ -40,7 +38,9 @@ public class BlockMain {
 
 				// conf.setCombinerClass(SimplePageRankReduce.class);
 
-				Job conf = createJobConf(input, output);
+				Job conf = createJobConf(input, output, iteration);
+
+				// conf.getConfiguration().setInt(Constants.ITERATION_NAME,iteration);
 				conf.waitForCompletion(true);
 
 				long longResidual = conf.getCounters().findCounter(Counter.COUNTER).getValue();
@@ -49,12 +49,20 @@ public class BlockMain {
 
 				System.out.println("--------------------Inside Iteration----------------");
 				System.out.println("Iternation number " + iteration + " residual " + residual);
-
-				if (residual <= Constants.ERROR_THRESHHOLD)
+				long averg_Iteration =(long) conf.getCounters().findCounter(Counter.AVG_ITERATION).getValue() / Constants.BLOCK_SIZE;
+				
+				System.out.println("AVERAGE NUMBER OF ITERATION IN REDUCER BLOCK = " + averg_Iteration);
+				conf.getCounters().findCounter(Counter.COUNTER).setValue(0L);
+				
+				
+				if (residual <= Constants.ERROR_THRESHHOLD) {
 					break;
+				}
 
 				// reset residual counter after each iteration
-				conf.getCounters().findCounter(Counter.COUNTER).setValue(0L);
+				
+				conf.getCounters().findCounter(Counter.AVG_ITERATION).setValue(0L);
+
 				iteration++;
 			}
 
@@ -64,48 +72,41 @@ public class BlockMain {
 
 			System.out.println("-----------------------------------------------------------------");
 			System.out.println("---------------------End of PageRanking--------------------------");
+			System.out.println("===================================================================");
 			System.out.println("Iteration number " + iteration);
 
 		}
 
-	}  // end of main
-	
-	
-	public static Job createJobConf(String input,String output)
-	
-	{
-		
-		Job conf = null;
-		try
-		{
-		conf = Job.getInstance(new Configuration(), "BlockPageRank");
-	
-		conf.setJarByClass(BlockMain.class);
-		conf.setMapperClass(BlockMapper.class);
-		conf.setMapOutputKeyClass(Text.class);
-		conf.setMapOutputValueClass(Text.class);
-		conf.setReducerClass(BlockReducer.class);
-		conf.setOutputKeyClass(Text.class);
-		conf.setOutputValueClass(Text.class);
+	} // end of main
 
-		FileInputFormat.addInputPath(conf, new Path(input));
-		FileOutputFormat.setOutputPath(conf, new Path(output));
-		
-		return conf;
-		
-		
-		}
-		catch(Exception e )
-		{
+	public static Job createJobConf(String input, String output, int iteration)
+
+	{
+
+		Job conf = null;
+		try {
+			Configuration jobConfig = new JobConf();
+			jobConfig.setInt("Iteration", 1);
+			conf = Job.getInstance(jobConfig, "BlockPageRank");
+
+			conf.setJarByClass(BlockMain.class);
+			conf.setMapperClass(BlockMapper.class);
+			conf.setMapOutputKeyClass(Text.class);
+			conf.setMapOutputValueClass(Text.class);
+			conf.setReducerClass(BlockReducer.class);
+			conf.setOutputKeyClass(Text.class);
+			conf.setOutputValueClass(Text.class);
+
+			FileInputFormat.addInputPath(conf, new Path(input));
+			FileOutputFormat.setOutputPath(conf, new Path(output));
+
+			return conf;
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
+
 		return conf;
 	}
-	
-	
-	
-	
 
 }
