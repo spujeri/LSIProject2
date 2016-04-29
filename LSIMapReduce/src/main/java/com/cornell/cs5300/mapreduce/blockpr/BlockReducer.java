@@ -259,7 +259,6 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 
 				}
 
-				context.getCounter(Counter.AVG_ITERATION).increment(1);
 			}
 
 			if (BCMap.containsKey(nodeV))
@@ -272,6 +271,7 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 			nprMap.put(nodeV, newPageRank);
 
 		}
+		context.getCounter(Counter.AVG_ITERATION).increment(1);
 		for (Node node : blockNodeMap.values()) {
 
 			node.setPageRank(String.valueOf(nprMap.get(node.getName())));
