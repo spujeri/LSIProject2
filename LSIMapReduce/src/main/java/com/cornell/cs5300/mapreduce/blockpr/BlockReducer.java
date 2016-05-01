@@ -226,6 +226,8 @@ public class BlockReducer extends Reducer<Text, Text, Text, Text> {
 				+ blockNodeMap.get(String.valueOf(minNode1)).getPageRank() + " MIN_NODE2 " + minNode2 + " PR "
 				+ blockNodeMap.get(String.valueOf(minNode2)).getPageRank());
 		cleanup(context);
+		
+		
 
 	}
 
