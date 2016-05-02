@@ -70,7 +70,7 @@
               <configuration>
                   <archive>
                       <manifest>
-                          <mainClass>com.cornell.cs5300.mapreduce.simplepr.SimplePageRankingMain</mainClass>
+                          <mainClass>com.cornell.cs5300.mapreduce.pagerank.SimplePageRankMain</mainClass>
                       </manifest>
                   </archive>
               </configuration>
