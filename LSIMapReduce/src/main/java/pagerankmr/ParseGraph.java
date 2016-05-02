@@ -1,5 +1,14 @@
 package pagerankmr;
 
+/**
+ *This class computes the required filtered file used for Simple and blocked pgae rank as per format specified in ReadMe
+ *It mainly consists of 2 methods
+ * 1)  method praseEdges() takes the original edges.txt file and filters the edge based on the netid calculation
+ * 2) method computeOutDegree() takes the file generated from above method and make the filtered file "mgs275_filteredEdges.txt" in required format
+ * 
+ */
+
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;

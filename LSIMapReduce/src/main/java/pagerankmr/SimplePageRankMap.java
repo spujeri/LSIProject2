@@ -1,5 +1,16 @@
 package pagerankmr;
 
+/**
+ * This is the mapper class of the simple page rank implementation, the contents of “mgs275_filteredEdges.txt” file are passed as the input. 
+ * From the input the source node is extracted and then the mapper class emits the same line as the output with the source
+   node as the key, this is to retain the graph structure. Then the mapper parses the rest of the input
+   to extract destination nodes from the adjacency list and the page rank. The mapper finally emits
+   the destination node and PageRank divided by the outdegree of source node.
+ * 
+ * 
+ */
+
+
 import java.io.IOException;
 
 import org.apache.hadoop.io.LongWritable;

@@ -1,5 +1,13 @@
 package pagerankmr;
 
+/**
+ * Mapper class for the Blocked Page Rank implementation.
+ * It emits the graph structure to retain the original structure and along with that it emits as per the following 2 cases
+ * 1. If the destination is in the same block as source then it emits source and destination node id in the value and source block as key
+ * 2. If the destination is in another block, then it emits source and destination node id along with the page rank destination receives as value and destination node block as key
+ */
+
+
 import java.io.IOException;
 
 import org.apache.hadoop.io.LongWritable;

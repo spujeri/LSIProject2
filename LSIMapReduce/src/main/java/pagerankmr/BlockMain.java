@@ -1,5 +1,15 @@
 package pagerankmr;
 
+/**
+ * 
+ * This is the main class where the MapReduce job is created and iterated until the 
+ * convergence condition is met. The convergence condition is tested using the residual value
+   received from the reducer and checked against the error threshold of 0.001, if residual is less
+   than or equal to this value we break out of the loop and finish.
+ * 
+ */
+
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;

@@ -1,5 +1,19 @@
 package pagerankmr;
 
+
+/**
+ * 
+ * It is a blocked reducer class for Gauss implementation.
+ * It computes the page rank of each node in the block as per the iterateBlockOnce pesudo code given in instructions.
+ * It constructs the suitable hashmap based on the input from mapper.
+ * Boundary page ranks are directly summed up , whereas for nodes in same block page rank is divided by outdegree of source node and then add.
+ * For detailed information, refer ReadMe
+ * 
+ */
+
+
+
+
 import java.io.IOException;
 import java.util.*;
 

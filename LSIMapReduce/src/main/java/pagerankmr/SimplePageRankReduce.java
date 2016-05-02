@@ -1,5 +1,18 @@
 package pagerankmr;
 
+/**
+ * This is the reducer class for Simple PageRank. 
+ * The reducer receives the input from the mapper, this input will 
+ * contain the graph line and subsequent pageranks received from various source nodes for the 
+ * particular destination node in question for the reducer. The page ranks received from the various 
+ * nodes are summed up and the final page rank is calculated using the following formula: 
+ * newPagerank = SumTotalPageRank * D + (1 - D) /N. Additionally, the residual is calculated using 
+ * the following formula: “residual = Math.abs(oldPagerank - newPagerank) / newPagerank” This
+ * value is passed to the main class through a Hadoop counter so as to check for convergence.
+ * 
+ */
+
+
 import java.io.IOException;
 import java.util.Iterator;
 import org.apache.hadoop.io.Text;
