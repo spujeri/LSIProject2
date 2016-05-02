@@ -115,9 +115,10 @@ public class BlockMain {
 			conf.setMapOutputValueClass(Text.class);
 			if (flag.trim().equalsIgnoreCase(("jacobi"))) {
 				conf.setReducerClass(BlockReducerJacobi.class);
+				System.out.println("JACOBI BLOCK PAGERANK WILL RUN");
 			} else if (flag.trim().equalsIgnoreCase(("gauss"))) {
 				conf.setReducerClass(BlockReducerGauss.class);
-				System.out.println("JACOBI BLOCK PAGERANK WILL RUN");
+				System.out.println("GAUSS BLOCK PAGERANK WILL RUN");
 			} else {
 				System.out.println("Please mention right alogorithm name in command line arguement");
 				return null;
